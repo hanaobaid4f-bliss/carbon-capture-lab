@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carbon Capture Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   1. COLOURS AND BASIC LOOK
+   Change a colour here and it changes everywhere on the page.
+   ========================================================= */
+:root{
+  --bg:#f6f5f1; --card:#ffffff; --ink:#1d1f22; --muted:#5f6670; --line:#e3e1da;
+  --co2:#d94b3d; --n2:#9aa3ad; --steam:#e9a23b; --cool:#3f8fd0;
+  --easy:#2f8f62; --important:#d94b3d; --hardest:#6b4bb8; --good:#2f8f62; --bad:#c0392b;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#141518; --card:#1d1f23; --ink:#ececec; --muted:#a2a8b0; --line:#2e3137; --n2:#7d8792; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 60px}
+h1{font-size:30px;line-height:1.2;margin:0 0 6px;letter-spacing:-.01em}
+h2{font-size:19px;margin:0 0 4px}
+h3{font-size:15px;margin:0 0 6px}
+.lede{color:var(--muted);max-width:780px;margin:0 0 14px}
+.topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:22px}
+.badge{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:18px}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:880px){.grid,.grid2{grid-template-columns:1fr}}
+.sub{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.note{font-size:12.5px;color:var(--muted)}
+.question{font-size:17px;font-weight:600;border-left:3px solid var(--co2);padding:2px 0 2px 12px;margin:0 0 16px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}
+.pill{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:7px 12px;font:500 13px Inter,sans-serif;cursor:pointer;display:flex;gap:7px;align-items:center}
+.pill .dot{width:8px;height:8px;border-radius:50%}
+.pill[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.scen{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.scen button{text-align:left;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:10px 12px;cursor:pointer;font:13px/1.4 Inter,sans-serif}
+.scen button b{display:block;font-size:13.5px;margin-bottom:2px}
+.scen button.on{border-color:var(--ink)}
+.scenInfo{margin-top:10px;font-size:13.5px;color:var(--muted);min-height:20px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;font:500 13px Inter,sans-serif;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.controls{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
+input[type=range]{accent-color:var(--co2);width:100%}
+svg text{font-family:Inter,sans-serif}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat .k{font-size:12px;color:var(--muted)}
+.stat .v{font:600 19px 'JetBrains Mono',monospace;margin-top:2px}
+.steps{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:6px}
+.steps li{border:1px solid var(--line);border-radius:10px;padding:8px 12px;transition:border-color .2s, background .2s}
+.steps li.on{border-color:var(--ink);background:color-mix(in srgb, var(--ink) 5%, transparent)}
+.steps .t{font-weight:600;display:flex;gap:8px;align-items:center;font-size:14px}
+.steps .sw{width:10px;height:10px;border-radius:3px}
+.steps p{margin:3px 0 0;font-size:13px;color:var(--muted)}
+.closeup{border:1px solid var(--line);border-radius:10px;padding:10px}
+.phase{font:600 13px Inter,sans-serif;display:flex;justify-content:space-between;align-items:center}
+.slider{margin:12px 0}
+.slider label{display:flex;justify-content:space-between;font-size:13.5px}
+.slider label span{font-family:'JetBrains Mono',monospace;font-weight:600}
+.slider .help{font-size:12px;color:var(--muted)}
+.improve{border:1.5px solid var(--easy);border-radius:12px;padding:12px 14px;margin-top:14px;background:color-mix(in srgb, var(--easy) 6%, transparent)}
+.improve .tag{font-size:11.5px;font-weight:700;color:var(--easy);letter-spacing:.04em}
+.improve label.chk{display:flex;gap:8px;align-items:center;font-weight:600;font-size:14px;margin:6px 0 2px;cursor:pointer}
+.improve input[type=checkbox]{width:18px;height:18px;accent-color:var(--easy)}
+.netline{font-size:13.5px;margin-top:10px}
+.improve .help{font-size:12.5px;color:var(--muted)}
+.verdict{border-radius:12px;padding:14px 16px;margin-top:6px;font-size:15px}
+.verdict.good{background:color-mix(in srgb, var(--good) 12%, transparent);border:1px solid var(--good)}
+.verdict.bad{background:color-mix(in srgb, var(--bad) 10%, transparent);border:1px solid var(--bad)}
+.verdict.info{background:color-mix(in srgb, var(--muted) 10%, transparent);border:1px solid var(--line)}
+.verdict .big{font-size:20px;font-weight:700;display:block;margin-bottom:4px}
+.marbles{display:grid;grid-template-columns:repeat(25,1fr);gap:3px;margin:10px 0 6px}
+.marbles i{aspect-ratio:1;border-radius:50%;background:var(--line)}
+.marbles i.r{background:var(--co2)}
+.insight{border-left:3px solid var(--co2);padding:4px 0 4px 14px;margin:14px 0 0;font-size:14.5px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600}
+a{color:inherit}
+.src li{margin:3px 0;font-size:13px;color:var(--muted)}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;color:var(--muted);font-size:13.5px}
+/* Tour */
+.tour-hl{outline:3px solid var(--co2);outline-offset:4px;border-radius:14px}
+#tourBox{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:520px;width:calc(100% - 32px);background:var(--ink);color:var(--bg);border-radius:14px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:none;z-index:10}
+#tourBox p{margin:0 0 12px;font-size:14.5px}
+#tourBox .row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;opacity:.85}
+#tourBox button{background:var(--bg);color:var(--ink);border:0;border-radius:8px;padding:6px 12px;font:600 13px Inter,sans-serif;cursor:pointer;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- =====================================================
+       2. PAGE HEADER
+       ===================================================== -->
+  <h1>Carbon Capture Lab</h1>
+  <p class="lede">A working model of how Svante's rotary machine pulls CO2 out of factory smoke, and a test of one question: why does the industry capture the easy carbon first, when the important carbon is in heavy industry?</p>
+  <div class="topbar">
+    <button class="btn primary" id="tourBtn">▶ Take the tour</button>
+    <span class="badge">● Teaching model · simplified physics · real-world figures cited below</span>
+  </div>
+
+  <!-- =====================================================
+       3. CHOOSE A SOURCE OR A REAL PROJECT
+       ===================================================== -->
+  <div class="card" id="secSource">
+    <h2>1. Choose where the CO2 comes from</h2>
+    <p class="sub">Green is easy carbon (nearly pure). Red is important carbon (heavy industry, diluted). Purple is open air.</p>
+    <div class="pills" id="picker"></div>
+    <h3 style="margin-top:16px">Or start from a real project</h3>
+    <div class="scen" id="scenarios"></div>
+    <div class="scenInfo" id="scenInfo"></div>
+  </div>
+
+  <!-- =====================================================
+       4. THE MECHANISM: WHEEL + CLOSE-UP + STEPS
+       ===================================================== -->
+  <div class="card" id="secMech">
+    <h2>2. How Svante's machine works</h2>
+    <p class="sub">The filters sit in a slowly turning wheel. Every filter bed passes through capture, steam release and cooling on each turn. The outlined bed is the one shown in the close-up.</p>
+    <div class="grid">
+      <div>
+        <svg id="wheel" viewBox="0 0 460 420" width="100%" style="max-width:520px;display:block;margin:auto" role="img" aria-label="Rotating capture wheel"></svg>
+        <div class="controls">
+          <button class="btn" id="play">Pause</button>
+          <label style="display:flex;align-items:center;gap:8px;min-width:200px">Speed <input type="range" id="speed" min="1" max="20" value="6"> <span id="speedv">6×</span></label>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">CO2 in incoming gas</div><div class="v" id="sConc">–</div></div>
+          <div class="stat"><div class="k">CO2 held per kg filter</div><div class="v" id="sLoad">–</div></div>
+          <div class="stat"><div class="k">Pure CO2 out per turn</div><div class="v" id="sOut">–</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="closeup" id="secClose">
+          <div class="phase"><span>Close-up of one filter bed</span><span id="phaseName" style="color:var(--co2)">Capture</span></div>
+          <svg id="closeSvg" viewBox="0 0 420 190" width="100%" role="img" aria-label="Molecules passing through one filter"></svg>
+          <div class="note" id="closeNote">–</div>
+        </div>
+        <ol class="steps" id="steps">
+          <li data-z="ads"><div class="t"><span class="sw" style="background:var(--co2)"></span>1. Capture</div><p>Cleaned flue gas flows through thin sheets coated with CALF-20, a metal-organic framework. CO2 sticks to its surface; nitrogen passes straight through.</p></li>
+          <li data-z="reg"><div class="t"><span class="sw" style="background:var(--steam)"></span>2. Release with steam</div><p>Low-pressure steam heats the bed. Hot sorbent can't hold CO2, so it comes off as a nearly pure stream.</p></li>
+          <li data-z="cool"><div class="t"><span class="sw" style="background:var(--cool)"></span>3. Cool and repeat</div><p>Air cools the bed so it can grab CO2 again, then it turns back into the capture zone.</p></li>
+        </ol>
+        <p class="note" style="margin-top:8px">Before the wheel, the gas is cooled and cleaned of sulfur, dust and nitrogen oxides so they don't damage the filters. A real machine has 48 beds and turns about once a minute.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       5. THE RESEARCH QUESTION AND VERDICT
+       ===================================================== -->
+  <div class="card" id="secVerdict">
+    <h2>3. Is it worth capturing?</h2>
+    <p class="question">Can this source's CO2 be captured for less than the price of emitting it?</p>
+    <div class="grid2">
+      <div>
+        <div class="slider">
+          <label>Carbon price <span id="vCarbon"></span></label>
+          <input type="range" id="carbon" min="0" max="200" value="73">
+          <div class="help">What a company pays per tonne of CO2 it emits. Europe's carbon price has been around USD 73.</div>
+        </div>
+        <div class="slider">
+          <label>Steam energy price <span id="vSteam"></span></label>
+          <input type="range" id="steamP" min="1" max="15" value="4" step="0.5">
+          <div class="help">Cost of the heat used to release CO2 from the filters (USD per gigajoule).</div>
+        </div>
+        <div class="slider">
+          <label>Better filter material <span id="vCap"></span></label>
+          <input type="range" id="cap" min="1" max="3" value="1" step="0.1">
+          <div class="help">How much more CO2 a future filter could hold. This is the lever that turns important carbon into easy carbon.</div>
+        </div>
+        <div class="improve" id="secImprove">
+          <div class="tag">MY PROPOSED IMPROVEMENT</div>
+          <label class="chk"><input type="checkbox" id="waste"> Power the steam step with the kiln's waste heat</label>
+          <div class="help">Svante releases CO2 with low-pressure steam. Normally that steam comes from burning gas, which emits new CO2. A cement kiln throws away a lot of heat. Could that heat make the steam instead? (Hypothesis to test.)</div>
+          <div class="slider" style="margin-bottom:0">
+            <label>Share of steam from waste heat <span id="vWaste"></span></label>
+            <input type="range" id="wasteShare" min="0" max="100" value="60" step="5" disabled>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div id="verdict" class="verdict info"></div>
+        <svg id="costBar" viewBox="0 0 460 120" width="100%" style="margin-top:12px"></svg>
+        <p class="netline" id="netLine"></p>
+        <p class="note" id="costNote"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       6. WHY DILUTED CO2 COSTS MORE
+       ===================================================== -->
+  <div class="card" id="secCharts">
+    <h2>4. Why diluted CO2 costs more</h2>
+    <div class="grid">
+      <div>
+        <p class="sub">Log scale: each grid step is 10 times bigger. The selected source is outlined.</p>
+        <div style="font-weight:600;font-size:14px">Gas to move to catch 1 tonne of CO2</div>
+        <svg id="chartVol" viewBox="0 0 520 290" width="100%"></svg>
+        <div style="font-weight:600;font-size:14px;margin-top:8px">Minimum energy to separate 1 tonne (physics limit)</div>
+        <svg id="chartE" viewBox="0 0 520 290" width="100%"></svg>
+      </div>
+      <div>
+        <h3>The marble picture</h3>
+        <p class="sub" id="marbleCap">–</p>
+        <div class="marbles" id="marbles"></div>
+        <p class="note">500 marbles. Red = CO2, grey = everything else.</p>
+        <p class="insight" id="insight">–</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       7. YOUR OWN EXPERIMENT
+       ===================================================== -->
+  <div class="card" id="secExp">
+    <h2>5. My experiment: zeolite beads in a sealed box</h2>
+    <p class="sub">The model predicts that beads catch CO2 faster when there is more of it. Upload your box readings to test that.</p>
+    <div class="grid2">
+      <div>
+        <div class="drop">
+          <input type="file" id="csv" accept=".csv,text/csv"><br><br>
+          Upload a CSV file. First column: minute. Then one column per test.<br>
+          Example first line: <code>minute,normal_air,breath</code>
+        </div>
+        <p class="note" id="expNote">No data uploaded yet. Nothing here is made up: this chart stays empty until you add your own readings.</p>
+      </div>
+      <svg id="expChart" viewBox="0 0 460 260" width="100%"></svg>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       8. ABOUT THE MODEL + SOURCES
+       ===================================================== -->
+  <div class="card">
+    <h2>How this model works</h2>
+    <p class="sub">This is a teaching model, not Svante's engineering data. Filter loading follows a Langmuir curve tuned to about 1.8 mol of CO2 per kg at 20% CO2, the DOE figure for Svante's CALF-20 sorbent. Release heat uses its reported heat of adsorption (35–38 kJ/mol) plus the heat to warm the filter by about 80 °C. Equipment cost grows with the volume of gas the machine must handle. About USD 40 per tonne is added for compressing, transporting and storing the CO2. Steam bought from a gas boiler is counted as emitting about 0.06 t of CO2 per GJ (roughly 56 kg per GJ of gas burned at 90% efficiency), so the verdict uses the cost per tonne actually kept out of the air. The waste-heat improvement is a hypothesis: Brevik already runs much of its capture on waste heat with a liquid solvent, but Svante's filters have not yet been shown working this way at full scale. The capture part is calibrated to land inside the IEA's USD 40–120 range for diluted sources; treat the exact numbers as illustrative.</p>
+    <ul class="src">
+      <li><a href="https://netl.doe.gov/index.php/node/11418">NETL: Svante rapid-cycle temperature swing adsorption</a></li>
+      <li><a href="https://www.svanteinc.com/?p=27814">Svante: 48 filter beds per rotary contactor, about 60-second cycle</a></li>
+      <li><a href="https://edx.netl.doe.gov/resource/bc60e93b-373a-43a1-8e1f-fe54c04d2114/download">DOE project summary: CALF-20 loading and heat of adsorption</a></li>
+      <li><a href="https://www.iea.org/commentaries/is-carbon-capture-too-expensive">IEA: capture costs USD 15–25/t for pure streams, 40–120/t for diluted ones</a></li>
+      <li><a href="https://thundersaidenergy.com/downloads/co2-concentrations-in-industrial-exhaust-streams/">Thunder Said Energy: cement and blast furnaces at 10–40% CO2</a></li>
+      <li><a href="https://www.globalccsinstitute.com/wp-content/uploads/2026/05/Brevik-CCS-Facility-Profile.pdf">Global CCS Institute: Brevik uses waste heat for much of its capture energy</a></li>
+      <li><a href="https://www.heidelbergmaterials.com/en/pr-2025-06-18">Heidelberg Materials: Brevik CCS</a> · <a href="https://globalcement.com/news/itemlist/tag/Svante">Global Cement: Svante cement pilots</a></li>
+      <li><a href="https://naturalgasworld.com/exxonmobil-plans-400mn-wyoming-ccs-expansion-93138">ExxonMobil Shute Creek</a> · <a href="https://sequestration.mit.edu/tools/projects/illinois_industrial_ccs.html">ADM Decatur</a> · <a href="https://www.gasworld.com/story/climeworks-upgrades-dac-tech-at-iceland-facility-after-low-co2-capture-record/2259464.article/">Climeworks Mammoth</a></li>
+      <li><a href="https://amp.insurancejournal.com/news/international/2025/05/22/824741.htm">Europe's carbon price about USD 73 and Climeworks pricing (Bloomberg via Insurance Journal)</a></li>
+    </ul>
+  </div>
+</div>
+
+<div id="tourBox"><p id="tourText"></p><div class="row"><span id="tourStep"></span><span><button id="tourSkip">Skip</button><button id="tourNext">Next</button></span></div></div>
+
+<script>
+/* =========================================================
+   A. DATA: the CO2 sources
+   x = fraction of the gas that is CO2 (0.20 means 20%)
+   cat = easy, important or hardest
+   Add a line here and it appears everywhere on the page.
+   ========================================================= */
+const SOURCES=[
+  {id:'eth',   name:'Ethanol plant',          x:0.99,   cat:'easy'},
+  {id:'ngp',   name:'Natural gas processing', x:0.65,   cat:'easy'},
+  {id:'steel', name:'Steel blast furnace',    x:0.25,   cat:'important'},
+  {id:'cem',   name:'Cement kiln',            x:0.20,   cat:'important'},
+  {id:'coal',  name:'Coal power plant',       x:0.13,   cat:'important'},
+  {id:'gas',   name:'Gas power plant',        x:0.04,   cat:'important'},
+  {id:'air',   name:'Open air',               x:0.0004, cat:'hardest'}
+];
+const CAT={easy:{label:'Easy carbon',c:'var(--easy)'},important:{label:'Important carbon',c:'var(--important)'},hardest:{label:'Hardest carbon',c:'var(--hardest)'}};
+
+/* Real projects. src = which source above it uses. */
+const PROJECTS=[
+  {name:'Brevik, Norway', who:'Heidelberg Materials', src:'cem', info:'World\'s first industrial-scale cement capture, opened June 2025. About 400,000 t/yr, half the plant\'s emissions. Uses a liquid amine solvent, not Svante\'s filters.', url:'https://www.heidelbergmaterials.com/en/pr-2025-06-18'},
+  {name:'Richmond, Canada', who:'Lafarge Canada + Svante', src:'cem', info:'Svante\'s filters tested on real cement kiln gas. A pilot, not yet full scale.', url:'https://globalcement.com/news/itemlist/tag/Svante'},
+  {name:'Shute Creek, USA', who:'ExxonMobil', src:'ngp', info:'Raw gas is about 65% CO2. Up to about 7 Mt/yr captured, mostly used to push more oil out of old wells.', url:'https://naturalgasworld.com/exxonmobil-plans-400mn-wyoming-ccs-expansion-93138'},
+  {name:'Decatur, USA', who:'ADM', src:'eth', info:'Corn ethanol fermentation gives over 99% pure CO2. About 1 Mt/yr stored underground.', url:'https://sequestration.mit.edu/tools/projects/illinois_industrial_ccs.html'},
+  {name:'Mammoth, Iceland', who:'Climeworks', src:'air', info:'Direct air capture. 675 t net removed in the first half of 2026, against a design of 36,000 t/yr.', url:'https://www.gasworld.com/story/climeworks-upgrades-dac-tech-at-iceland-facility-after-low-co2-capture-record/2259464.article/'}
+];
+
+let cur=SOURCES.find(s=>s.id==='cem');
+const NS='http://www.w3.org/2000/svg';
+function fmtPct(x){return x<0.01?(x*100).toFixed(2)+'%':Math.round(x*100)+'%'}
+function fmtNum(v){return v>=100?Math.round(v).toLocaleString():v>=1?v.toFixed(1):v.toFixed(2)}
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent.appendChild(e);return e}
+
+/* =========================================================
+   B. PHYSICS MODEL
+   ========================================================= */
+const QMAX=4.0, B=4.09;                           // Langmuir curve: ~1.8 mol/kg at 20% CO2
+const qeq=x=>QMAX*B*x/(1+B*x);                    // mol CO2 held per kg filter
+const N=48, BED_KG=50;                            // 48 beds; 50 kg sorbent per bed (illustrative)
+const volPerT=x=>509/x;                           // m3 of gas per tonne of CO2
+function wmin(x){                                 // ideal separation energy, kWh per tonne
+  const y=1-x; let w=Math.log(1/x); if(y>0) w+=(y/x)*Math.log(1/y);
+  return 8.314*298*w*(1e6/44.01)/3.6e6;
+}
+const STEAM_CO2=0.062;                            // t CO2 per GJ of steam from a gas boiler (~56 kg/GJ fuel, 90% efficient)
+function costModel(src,steamPrice,capBoost,wasteShare){ // USD per tonne, diluted sources only
+  const q=qeq(src.x)*capBoost;
+  const heatGJ=0.85+1.82/q;                        // desorption heat + warming the filter
+  const boughtGJ=heatGJ*(1-wasteShare);            // heat that still has to come from burning gas
+  const energy=boughtGJ*steamPrice;
+  const steamCO2=boughtGJ*STEAM_CO2;               // t CO2 emitted per t captured, just to make steam
+  const vol=volPerT(src.x);
+  const equipment=0.3*Math.pow(vol,0.6)*(0.5+0.5/capBoost); // fans + machine size (bigger gas flow = bigger machine)
+  const ops=40;                                     // compress (15) + transport and store (25)
+  const total=energy+equipment+ops;
+  return {heatGJ,boughtGJ,energy,equipment,ops,total,steamCO2,net:1-steamCO2,perNet:total/(1-steamCO2)};
+}
+
+/* =========================================================
+   C. SOURCE PICKER AND PROJECT BUTTONS
+   ========================================================= */
+const picker=document.getElementById('picker');
+SOURCES.forEach(s=>{
+  const b=document.createElement('button');b.className='pill';b.dataset.id=s.id;
+  b.innerHTML=`<span class="dot" style="background:${CAT[s.cat].c}"></span>${s.name} <span style="opacity:.7">${fmtPct(s.x)}</span>`;
+  b.onclick=()=>{select(s.id);setScenario(null)};picker.appendChild(b);
+});
+const scenBox=document.getElementById('scenarios');
+PROJECTS.forEach((p,i)=>{
+  const b=document.createElement('button');b.dataset.i=i;
+  const s=SOURCES.find(z=>z.id===p.src);
+  b.innerHTML=`<b>${p.name}</b>${p.who}<br><span style="color:${CAT[s.cat].c}">${CAT[s.cat].label}</span>`;
+  b.onclick=()=>{select(p.src);setScenario(i)};scenBox.appendChild(b);
+});
+function setScenario(i){
+  document.querySelectorAll('#scenarios button').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));
+  const box=document.getElementById('scenInfo');
+  if(i===null){box.textContent='';return}
+  const p=PROJECTS[i];box.innerHTML=`<b>${p.who}, ${p.name}:</b> ${p.info} <a href="${p.url}">Source</a>`;
+}
+
+/* =========================================================
+   D. THE WHEEL
+   ========================================================= */
+const svg=document.getElementById('wheel');
+const cx=230,cy=210,R1=78,R2=158;
+const ZONES=[
+  {id:'ads',from:-110,to:110,c:'var(--co2)'},
+  {id:'reg',from:110,to:200,c:'var(--steam)'},
+  {id:'cool',from:200,to:250,c:'var(--cool)'}
+];
+function pol(r,deg){const a=(deg-90)*Math.PI/180;return[cx+r*Math.cos(a),cy+r*Math.sin(a)]}
+function arcPath(r1,r2,a0,a1){
+  const [x1,y1]=pol(r2,a0),[x2,y2]=pol(r2,a1),[x3,y3]=pol(r1,a1),[x4,y4]=pol(r1,a0);
+  const large=(a1-a0)>180?1:0;
+  return `M${x1},${y1}A${r2},${r2} 0 ${large} 1 ${x2},${y2}L${x3},${y3}A${r1},${r1} 0 ${large} 0 ${x4},${y4}Z`;
+}
+ZONES.forEach(z=>el('path',{d:arcPath(R2+4,R2+16,z.from+1,z.to-1),fill:z.c,opacity:.85},svg));
+function label(deg,r,txt,color){const [x,y]=pol(r,deg);const t=el('text',{x,y,'text-anchor':'middle','font-size':12.5,fill:color,'font-weight':600},svg);t.textContent=txt}
+label(0,R2+30,'CAPTURE ZONE','var(--co2)');label(155,R2+32,'STEAM','var(--steam)');label(225,R2+30,'COOL','var(--cool)');
+function note(x,y,txt,anchor,color,w){const t=el('text',{x,y,'font-size':12,'text-anchor':anchor||'start',fill:color||'var(--muted)','font-weight':w||400},svg);t.textContent=txt}
+note(16,40,'Flue gas in →');note(444,40,'→ Nitrogen out','end');
+note(444,396,'Steam in','end','var(--steam)');note(444,412,'→ Pure CO2 out','end','var(--co2)',600);note(16,404,'Cooling air','start','var(--cool)');
+const g=el('g',{},svg);
+const beds=[];
+for(let i=0;i<N;i++){
+  const a0=i*360/N,a1=a0+360/N-1.4;
+  const p=el('path',{d:arcPath(R1,R2,a0,a1),stroke:i===0?'var(--ink)':'var(--card)','stroke-width':i===0?2.5:1},g);
+  beds.push({p,q:0,base:a0+(360/N)/2});
+}
+el('circle',{cx,cy,r:R1-4,fill:'var(--card)',stroke:'var(--line)'},svg);
+const h1=el('text',{x:cx,y:cy-4,'text-anchor':'middle','font-size':13,'font-weight':700,fill:'currentColor'},svg);h1.textContent='Rotary';
+const h2=el('text',{x:cx,y:cy+13,'text-anchor':'middle','font-size':13,'font-weight':700,fill:'currentColor'},svg);h2.textContent='machine';
+el('rect',{x:16,y:62,width:12,height:12,rx:2,fill:'var(--line)'},svg);note(34,72,'empty filter');
+el('rect',{x:16,y:80,width:12,height:12,rx:2,fill:'var(--co2)'},svg);note(34,90,'full of CO2');
+
+function zoneAt(deg){deg=((deg%360)+360)%360;
+  for(const z of ZONES){const f=((z.from%360)+360)%360,t=((z.to%360)+360)%360;
+    if(f<t?(deg>=f&&deg<t):(deg>=f||deg<t))return z.id}
+  return 'ads';}
+function mix(q){const f=Math.max(0,Math.min(1,q/3.3));return `color-mix(in srgb, var(--co2) ${Math.round(f*100)}%, var(--line))`}
+
+/* =========================================================
+   E. THE CLOSE-UP OF ONE FILTER BED
+   ========================================================= */
+const cs=document.getElementById('closeSvg');
+el('rect',{x:10,y:30,width:400,height:130,rx:8,fill:'none',stroke:'var(--line)'},cs);
+const filterRect=el('rect',{x:190,y:30,width:44,height:130,fill:'var(--line)',opacity:.7},cs);
+for(let yy=36;yy<160;yy+=10) el('line',{x1:190,x2:234,y1:yy,y2:yy+6,stroke:'var(--muted)','stroke-width':.6,opacity:.6},cs);
+const fl=el('text',{x:212,y:178,'text-anchor':'middle','font-size':11,fill:'var(--muted)'},cs);fl.textContent='CALF-20 filter';
+const inL=el('text',{x:14,y:20,'font-size':11.5,fill:'var(--muted)'},cs);
+const outL=el('text',{x:406,y:20,'font-size':11.5,'text-anchor':'end',fill:'var(--muted)'},cs);
+const pLayer=el('g',{},cs);
+let parts=[],stuck=[];
+function spawn(kind){
+  const y=40+Math.random()*110;
+  const d=el('circle',{cx:14,cy:y,r:kind==='co2'?4.5:3.5,fill:kind==='co2'?'var(--co2)':kind==='steam'?'var(--steam)':kind==='air'?'var(--cool)':'var(--n2)'},pLayer);
+  parts.push({d,x:14,y,kind,v:60+Math.random()*30});
+}
+let lastPhase=null,spawnAcc=0;
+function closeTick(dt,phase){
+  if(phase!==lastPhase){
+    const names={ads:['Capture','var(--co2)','Flue gas in →','→ Nitrogen out'],reg:['Release with steam','var(--steam)','Steam in →','→ Pure CO2 out'],cool:['Cool down','var(--cool)','Cooling air in →','→ Air out']};
+    const n=names[phase];const pn=document.getElementById('phaseName');pn.textContent=n[0];pn.style.color=n[1];
+    inL.textContent=n[2];outL.textContent=n[3];
+    if(phase==='reg') stuck.forEach(s=>{s.kind='released';s.v=70+Math.random()*30;parts.push(s)}),stuck=[];
+    if(phase==='ads'){ stuck.forEach(s=>s.d.remove()); stuck=[]; }
+    document.querySelectorAll('#steps li').forEach(li=>li.classList.toggle('on',li.dataset.z===phase));
+    lastPhase=phase;
+  }
+  spawnAcc+=dt*14;
+  while(spawnAcc>1){spawnAcc--;
+    if(phase==='ads') spawn(Math.random()<cur.x?'co2':'n2');
+    else if(phase==='reg') spawn('steam');
+    else spawn('air');
+  }
+  const capSlots=Math.round(qeq(cur.x)/3.3*40);
+  parts=parts.filter(p=>{
+    p.x+=p.v*dt;
+    if(p.kind==='co2' && p.x>=192 && phase==='ads'){
+      if(stuck.length<capSlots){p.x=194+Math.random()*36;p.d.setAttribute('cx',p.x);stuck.push(p);return false}
+    }
+    if(p.x>404){p.d.remove();return false}
+    p.d.setAttribute('cx',p.x);return true;
+  });
+  const cn=document.getElementById('closeNote');
+  if(phase==='ads') cn.textContent=cur.x<0.001?`At ${fmtPct(cur.x)}, only 1 molecule in 2,500 is CO2. Almost nothing reaches the filter to be caught.`:`Red = CO2, grey = nitrogen. CO2 sticks to the filter; nitrogen passes through. ${stuck.length} of ${capSlots} spots filled.`;
+  else if(phase==='reg') cn.textContent='Steam heats the filter. The trapped CO2 lets go and leaves as a nearly pure stream.';
+  else cn.textContent='Cool air brings the filter back down to temperature so it can catch CO2 again.';
+}
+
+/* =========================================================
+   F. ANIMATION LOOP
+   ========================================================= */
+let rot=0,last=performance.now(),playing=true,speed=6,released=0,turnOut=null,turns=0;
+const PERIOD=60;
+function tick(now){
+  const realDt=Math.min(0.05,(now-last)/1000);last=now;
+  const dt=realDt*speed;
+  if(playing){
+    rot+=360*dt/PERIOD;
+    const target=qeq(cur.x);
+    beds.forEach(b=>{
+      const z=zoneAt(b.base+rot);
+      if(z==='ads') b.q+=(target-b.q)*(1-Math.exp(-dt/6));
+      else if(z==='reg'){const r=b.q*(1-Math.exp(-dt/3));b.q-=r;released+=r*BED_KG*0.04401}
+    });
+    if(rot>=360*(turns+1)){turns++;turnOut=released;released=0;updStats()}
+    closeTick(realDt*Math.min(speed,6)/3+realDt*.6, zoneAt(beds[0].base+rot));
+  }
+  g.setAttribute('transform',`rotate(${rot%360} ${cx} ${cy})`);
+  beds.forEach(b=>b.p.setAttribute('fill',mix(b.q)));
+  requestAnimationFrame(tick);
+}
+function updStats(){
+  document.getElementById('sConc').textContent=fmtPct(cur.x);
+  const q=qeq(cur.x);
+  document.getElementById('sLoad').textContent=q.toFixed(q<0.1?3:2)+' mol';
+  const est=N*q*0.93*BED_KG*0.04401;
+  document.getElementById('sOut').textContent=((turnOut!=null&&turns>1)?turnOut:est).toFixed(est<1?2:0)+' kg';
+}
+
+/* =========================================================
+   G. VERDICT: IS IT WORTH CAPTURING?
+   ========================================================= */
+const sl={carbon:document.getElementById('carbon'),steam:document.getElementById('steamP'),cap:document.getElementById('cap'),waste:document.getElementById('waste'),wasteShare:document.getElementById('wasteShare')};
+Object.values(sl).forEach(s=>{s.oninput=updVerdict;s.onchange=updVerdict});
+function updVerdict(){
+  const carbon=+sl.carbon.value,steamP=+sl.steam.value,cap=+sl.cap.value;
+  document.getElementById('vCarbon').textContent='$'+carbon+'/t';
+  document.getElementById('vSteam').textContent='$'+steamP+'/GJ';
+  document.getElementById('vCap').textContent=cap.toFixed(1)+'×';
+  const useWaste=sl.waste.checked; sl.wasteShare.disabled=!useWaste;
+  const w=useWaste?(+sl.wasteShare.value)/100:0;
+  document.getElementById('vWaste').textContent=useWaste?sl.wasteShare.value+'%':'off';
+  const nl=document.getElementById('netLine');nl.textContent='';
+  const v=document.getElementById('verdict'),bar=document.getElementById('costBar'),cn=document.getElementById('costNote');
+  bar.innerHTML='';
+  if(cur.cat==='easy'){
+    v.className='verdict good';
+    v.innerHTML=`<span class="big">No capture machine needed</span>${cur.name} CO2 is already ${fmtPct(cur.x)} pure, so it only needs drying and compressing. The IEA puts capture at USD 15–25 per tonne, plus transport and storage. This is easy carbon, and it is why most capture today happens here.`;
+    cn.textContent='Breakdown: dry and compress about $20 (IEA range 15–25); transport and store about $25. Illustrative.';drawCost(bar,{energy:0,equipment:0,ops:45,total:45},carbon,true);return;
+  }
+  if(cur.cat==='hardest'){
+    v.className='verdict info';
+    v.innerHTML=`<span class="big">Not a job for this machine</span>Svante's wheel is built for factory smoke. At 0.04% CO2, its filter would hold only ${qeq(cur.x).toFixed(3)} mol per kg. Direct air capture uses different sorbents and has sold at about USD 600–1,000 per tonne.`;
+    cn.textContent='';return;
+  }
+  const c=costModel(cur,steamP,cap,w);
+  const per=c.perNet,gap=per-carbon;
+  if(gap<=0){v.className='verdict good';v.innerHTML=`<span class="big">Worth capturing</span>Each tonne of CO2 actually kept out of the air costs about <b>$${Math.round(per)}</b>. Emitting costs $${carbon}/t, so capture saves about $${Math.round(-gap)} per tonne.`}
+  else{v.className='verdict bad';v.innerHTML=`<span class="big">Not yet worth it</span>Each tonne of CO2 actually kept out of the air costs about <b>$${Math.round(per)}</b>, but emitting costs only $${carbon}/t. The gap is <b>$${Math.round(gap)} per tonne</b>. Try a higher carbon price, a better filter or waste heat.`}
+  drawCost(bar,c,carbon,false);
+  nl.innerHTML=`Making the steam ${useWaste&&w>=1?'emits nothing extra':`emits about <b>${Math.round(c.steamCO2*1000)} kg</b> of new CO2`} for every tonne captured, so the plant keeps <b>${Math.round(c.net*1000)} kg</b> out of the air per tonne caught.${useWaste?` Waste heat supplies ${Math.round(w*100)}% of the steam.`:''}`;
+  cn.textContent=`Breakdown: release heat ${c.heatGJ.toFixed(1)} GJ/t, of which ${c.boughtGJ.toFixed(1)} GJ bought at $${steamP} = $${Math.round(c.energy)}; equipment $${Math.round(c.equipment)}; compress, transport and store $${c.ops}. Capture cost $${Math.round(c.total)}/t caught, $${Math.round(per)}/t kept out of the air. Illustrative model.`;
+}
+function drawCost(svgEl,c,carbon,easy){
+  const L=10,W=440,max=Math.max(c.total,carbon)*1.2,X=v=>L+v/max*W;
+  const segs=easy?[['Dry + compress',20,'var(--easy)'],['Store',25,'var(--muted)']]:[['Heat',c.energy,'var(--steam)'],['Equipment',c.equipment,'var(--n2)'],['Compress + store',c.ops,'var(--muted)']];
+  let x=L;
+  segs.forEach(([n,v,col])=>{const w=v/max*W;el('rect',{x,y:30,width:Math.max(0,w),height:30,fill:col},svgEl);
+    if(w>48){const t=el('text',{x:x+w/2,y:50,'text-anchor':'middle','font-size':11.5,fill:'#fff','font-weight':600},svgEl);t.textContent=n}x+=w});
+  const tl=el('text',{x:L,y:20,'font-size':12,fill:'currentColor','font-weight':600},svgEl);tl.textContent=c.perNet?`Cost per tonne caught: $${Math.round(c.total)} · per tonne kept out of the air: $${Math.round(c.perNet)}`:`Cost per tonne: $${Math.round(c.total)}`;
+  const cxp=X(carbon);
+  el('line',{x1:cxp,x2:cxp,y1:24,y2:72,stroke:'var(--ink)','stroke-width':2,'stroke-dasharray':'4 3'},svgEl);
+  const ct=el('text',{x:Math.min(cxp,430),y:88,'text-anchor':'middle','font-size':12,fill:'currentColor','font-weight':600},svgEl);ct.textContent=`Carbon price $${carbon}`;
+  const ax=el('text',{x:L,y:112,'font-size':11,fill:'var(--muted)'},svgEl);ax.textContent=`$0`;
+  const ax2=el('text',{x:L+W,y:112,'font-size':11,fill:'var(--muted)','text-anchor':'end'},svgEl);ax2.textContent=`$${Math.round(max)}`;
+}
+
+/* =========================================================
+   H. CHARTS, MARBLES, INSIGHT
+   ========================================================= */
+function logChart(id,valFn,unit,lo,hi){
+  const s=document.getElementById(id);s.innerHTML='';
+  const L=160,Rr=478,top=8,rowH=36,X=v=>L+(Math.log10(v)-lo)/(hi-lo)*(Rr-L);
+  for(let p=lo;p<=hi;p++){const x=X(Math.pow(10,p));
+    el('line',{x1:x,x2:x,y1:top,y2:top+rowH*SOURCES.length,stroke:'var(--line)'},s);
+    const t=el('text',{x,y:top+rowH*SOURCES.length+16,'text-anchor':'middle','font-size':11,fill:'var(--muted)'},s);t.textContent=Math.pow(10,p).toLocaleString()}
+  SOURCES.forEach((src,i)=>{
+    const v=valFn(src.x),y=top+i*rowH,sel=src.id===cur.id,w=Math.max(2,X(v)-L);
+    el('rect',{x:L,y:y+6,width:w,height:22,rx:4,fill:CAT[src.cat].c,opacity:sel?1:.5,stroke:sel?'var(--ink)':'none','stroke-width':2},s);
+    const n=el('text',{x:L-8,y:y+21,'text-anchor':'end','font-size':12,'font-weight':sel?700:500,fill:'currentColor'},s);n.textContent=src.name;
+    const inside=w>110;const vt=el('text',{x:inside?L+w-6:L+w+6,y:y+21,'text-anchor':inside?'end':'start','font-size':11.5,'font-weight':600,fill:inside?'#fff':'currentColor'},s);
+    vt.textContent=fmtNum(v)+' '+unit;
+  });
+}
+function drawMarbles(){
+  const m=document.getElementById('marbles');m.innerHTML='';
+  const red=Math.round(cur.x*500);let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+  const idx=new Set();while(idx.size<red)idx.add(Math.floor(rnd()*500));
+  for(let i=0;i<500;i++){const d=document.createElement('i');if(idx.has(i))d.className='r';m.appendChild(d)}
+  document.getElementById('marbleCap').textContent=red===0?`${cur.name}: ${fmtPct(cur.x)} CO2. Not one of 500 marbles is red; you would need 2,500 to find one.`:`${cur.name}: ${fmtPct(cur.x)} CO2. About ${red} of 500 marbles are red.`;
+}
+function insight(){
+  const e=SOURCES[0],vr=volPerT(cur.x)/volPerT(e.x);
+  document.getElementById('insight').innerHTML=`<b>${cur.name}:</b> catching one tonne of CO2 means pushing about <b>${fmtNum(volPerT(cur.x))} m³</b> of gas through the machine, ${vr<1.05?'about the same as':'<b>'+fmtNum(vr)+'×</b> more than'} an ethanol plant. `+
+   (cur.cat==='important'?'This is the important carbon: harder than pure streams, far easier than open air.':cur.cat==='easy'?'Almost no separation work is needed, which is why companies capture it first.':'This is the concentration problem at its most extreme.');
+}
+
+/* =========================================================
+   I. YOUR EXPERIMENT (CSV upload)
+   ========================================================= */
+document.getElementById('csv').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>drawExp(r.result,f.name);r.readAsText(f);
+};
+function drawExp(text,name){
+  const rows=text.trim().split(/\r?\n/).map(l=>l.split(',').map(s=>s.trim()));
+  const head=rows[0],data=rows.slice(1).map(r=>r.map(Number)).filter(r=>!isNaN(r[0]));
+  const s=document.getElementById('expChart');s.innerHTML='';
+  if(head.length<2||!data.length){document.getElementById('expNote').textContent='Could not read that file. Check that the first line is like minute,normal_air,breath and the rest are numbers.';return}
+  const xs=data.map(r=>r[0]),ys=data.flatMap(r=>r.slice(1)).filter(v=>!isNaN(v));
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const L=50,R=450,T=20,Bt=220,X=v=>L+(v-x0)/((x1-x0)||1)*(R-L),Y=v=>Bt-(v-y0)/((y1-y0)||1)*(Bt-T);
+  el('line',{x1:L,x2:R,y1:Bt,y2:Bt,stroke:'var(--line)'},s);el('line',{x1:L,x2:L,y1:T,y2:Bt,stroke:'var(--line)'},s);
+  [[y0,Bt],[y1,T]].forEach(([v,y])=>{const t=el('text',{x:L-6,y:y+4,'text-anchor':'end','font-size':11,fill:'var(--muted)'},s);t.textContent=Math.round(v)});
+  const xt=el('text',{x:(L+R)/2,y:252,'text-anchor':'middle','font-size':11,fill:'var(--muted)'},s);xt.textContent=head[0];
+  const cols=['var(--cool)','var(--co2)','var(--easy)','var(--steam)','var(--hardest)'];
+  head.slice(1).forEach((h,i)=>{
+    const pts=data.filter(r=>!isNaN(r[i+1])).map(r=>`${X(r[0])},${Y(r[i+1])}`).join(' ');
+    el('polyline',{points:pts,fill:'none',stroke:cols[i%5],'stroke-width':2.5},s);
+    const t=el('text',{x:R,y:T+14*i,'text-anchor':'end','font-size':12,fill:cols[i%5],'font-weight':600},s);t.textContent=h;
+  });
+  document.getElementById('expNote').textContent=`Showing ${data.length} readings from ${name}. If the beads work as the model predicts, the CO2-rich line should drop faster.`;
+}
+
+/* =========================================================
+   J. SELECT A SOURCE: update everything
+   ========================================================= */
+function select(id){
+  cur=SOURCES.find(s=>s.id===id);
+  document.querySelectorAll('.pill').forEach(p=>p.setAttribute('aria-pressed',p.dataset.id===id));
+  turnOut=null;turns=Math.floor(rot/360);released=0;
+  updStats();drawMarbles();insight();updVerdict();
+  logChart('chartVol',volPerT,'m³',2,7);
+  logChart('chartE',wmin,'kWh',0,3);
+}
+document.getElementById('play').onclick=e=>{playing=!playing;e.target.textContent=playing?'Pause':'Play'};
+document.getElementById('speed').oninput=e=>{speed=+e.target.value;document.getElementById('speedv').textContent=speed+'×'};
+
+/* =========================================================
+   K. GUIDED TOUR
+   ========================================================= */
+const TOUR=[
+  ['secSource','Start here. Pick where the CO2 comes from, or a real project. Green is easy carbon, red is important carbon from heavy industry.'],
+  ['secMech','This is Svante\'s machine. A wheel of 48 filter beds turns through three zones: capture, steam release and cooling. Beds turn red as they fill with CO2.'],
+  ['secClose','The close-up follows one bed. CO2 (red) sticks to the CALF-20 filter while nitrogen (grey) passes through. Then steam pushes the CO2 out as a pure stream.'],
+  ['secVerdict','This is the research question. Move the sliders to see when capture becomes cheaper than emitting. A better filter is how important carbon could become as cheap as easy carbon.'],
+  ['secImprove','My proposed improvement: use the cement kiln\'s own waste heat to make the steam. It cuts the energy bill and avoids burning gas, so more of each captured tonne is truly kept out of the air.'],
+  ['secCharts','This is why diluted CO2 costs more: the less CO2 in the gas, the more gas the machine must push through for every tonne.'],
+  ['secExp','Finally, my own experiment. Upload the CO2 readings from the bead box to compare real data with the model.']
+];
+let tourI=-1;
+function tourGo(i){
+  document.querySelectorAll('.tour-hl').forEach(e=>e.classList.remove('tour-hl'));
+  const box=document.getElementById('tourBox');
+  if(i<0||i>=TOUR.length){box.style.display='none';tourI=-1;return}
+  tourI=i;const [id,txt]=TOUR[i];const t=document.getElementById(id);
+  t.classList.add('tour-hl');t.scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('tourText').textContent=txt;
+  document.getElementById('tourStep').textContent=`${i+1} of ${TOUR.length}`;
+  document.getElementById('tourNext').textContent=i===TOUR.length-1?'Finish':'Next';
+  box.style.display='block';
+}
+document.getElementById('tourBtn').onclick=()=>tourGo(0);
+document.getElementById('tourNext').onclick=()=>tourGo(tourI+1);
+document.getElementById('tourSkip').onclick=()=>tourGo(-1);
+
+/* START */
+select('cem');
+requestAnimationFrame(t=>{last=t;requestAnimationFrame(tick)});
+</script>
+</body>
+</html>
